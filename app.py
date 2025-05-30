@@ -23,7 +23,7 @@ DEBUG_MODE = os.environ.get('DEBUG', '0') == '1'
 ########################################
 feature_ranges = {
     "sku": (1124.0, 4735.0),
-    "time_key": (20230103.0, 20241028.0),
+    "time_key": (20230103, 20500000),
     "sales_volume": (0.0, 157854.0),
     "chain_price": (4.34, 780.89),
     "competitorA_campaign": (0.0, 0.0),
