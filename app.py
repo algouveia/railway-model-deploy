@@ -28,6 +28,12 @@ DB = PostgresqlDatabase(
     port=int(os.getenv("PGPORT", 5432))
 )
 
+@app.before_first_request
+def init_db():
+    if DB.is_closed():
+        DB.connect()
+    DB.create_tables([PricePrediction], safe=True)
+
 # Configuration
 DEBUG_MODE = os.environ.get('DEBUG', '0') == '1'
 
