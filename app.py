@@ -149,14 +149,13 @@ def prepare_features(req):
 # API Endpoints
 ########################################
 
-@app.route('/forecast_prices/', methods=['POST'])
 def forecast_prices():
     """Make price predictions and store results"""
     try:
         req = request.get_json()
-        validate_price_request(req)
+        validate_price_request(req)  # Ensure this validates all required fields and types
         
-        sku = int(req['sku'])  # Convert to int (handles both string and number inputs)
+        sku = int(req['sku'])
         time_key = int(req['time_key'])
         
         # Check for existing prediction
@@ -171,15 +170,22 @@ def forecast_prices():
                 "existing_prediction": model_to_dict(existing, exclude=[
                     'id', 'prediction_time', 'actual_pvpA', 'actual_pvpB'
                 ])
-            }), 409
+            }), 409  # HTTP 409 Conflict
         
-        # Make prediction
-        features = prepare_features(req)
-        y_pred = pipeline.predict(features)
-        y_pred = y_pred.flatten() if hasattr(y_pred, "flatten") else y_pred
+        # Prepare features and validate input ranges (assumed in prepare_features)
+        features = prepare_features(req)  # Ensure this returns a 2D array (e.g., DataFrame)
+        y_pred = pipeline.predict(features)  # Verify pipeline expects features in this format
+        
+        # Handle model output (ensure it returns 2 values)
+        if isinstance(y_pred, np.ndarray):
+            y_pred = y_pred.flatten()
+        elif isinstance(y_pred, list):
+            y_pred = np.array(y_pred).flatten()
+        else:
+            raise ValueError("Unexpected model prediction format")
         
         if len(y_pred) != 2:
-            raise ValueError("Model returned unexpected number of predictions")
+            raise ValueError(f"Model returned {len(y_pred)} predictions (expected 2)")
         
         # Store prediction
         prediction = PricePrediction.create(
@@ -191,13 +197,18 @@ def forecast_prices():
         
         return jsonify(model_to_dict(prediction, exclude=[
             'id', 'prediction_time', 'actual_pvpA', 'actual_pvpB'
-        ])), 201
-        
+        ])), 201  # HTTP 201 Created
+    
+    except KeyError as e:
+        return jsonify({'error': f"Missing required field: {str(e)}"}), 400
     except ValueError as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 400  # HTTP 400 Bad Request
+    except peewee.IntegrityError as e:
+        return jsonify({'error': "Database integrity error (e.g., duplicate entry)"}), 409
     except Exception as e:
-        app.logger.error(f"Prediction error: {str(e)}")
-        return jsonify({'error': 'Internal server error'}), 500
+        app.logger.error(f"Prediction error: {str(e)}", exc_info=True)
+        return jsonify({'error': 'Internal server error'}), 500  # HTTP 500
+
 
 @app.route('/actual_prices/', methods=['POST'])
 def actual_prices():
