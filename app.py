@@ -244,7 +244,7 @@ def actual_prices():
         app.logger.error(f"Update error: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
 
-@app.route('/predictions/<sku>/<time_key>/', methods=['GET'])
+@app.route('/forecast_prices/<sku>/<time_key>/', methods=['GET'])
 def get_prediction(sku, time_key):
     """Retrieve a specific prediction"""
     try:
