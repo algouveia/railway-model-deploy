@@ -16,3 +16,4 @@ peewee
 pandas
 scikit-learn
 joblib
+xgboost
