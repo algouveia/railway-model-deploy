@@ -247,26 +247,36 @@ def actual_prices():
 
 #@app.route('/forecast_prices/<sku>/<time_key>/', methods=['GET'], strict_slashes=False)
 @app.route('/forecast_prices/', methods=['POST'], strict_slashes=False)
-def get_prediction(sku, time_key):
-    """Retrieve a specific prediction"""
+def retrieve_prediction():
+    """Retrieve a specific prediction by JSON payload"""
     try:
-        # Convert parameters to integers (handles both string and number inputs)
-        sku_int = int(sku)
-        time_key_int = int(time_key)
-        
-        prediction = PricePrediction.get(
-            (PricePrediction.sku == sku_int) & 
+        req = request.get_json(force=True)
+        # Basic JSON validation
+        if not isinstance(req, dict) or 'sku' not in req or 'time_key' not in req:
+            return jsonify({'error': 'Request must be JSON with sku and time_key'}), 400
+
+        # Convert and validate
+        try:
+            sku_int = int(req['sku'])
+            time_key_int = int(req['time_key'])
+        except (ValueError, TypeError):
+            return jsonify({'error': 'sku and time_key must be numeric'}), 400
+
+        # Lookup
+        pred = PricePrediction.get_or_none(
+            (PricePrediction.sku == sku_int) &
             (PricePrediction.time_key == time_key_int)
         )
-        return jsonify(model_to_dict(prediction)), 200
-    except ValueError:
-        return jsonify({'error': 'SKU and time_key must be numbers'}), 400
-    except PricePrediction.DoesNotExist:
-        return jsonify({
-            'error': f'No prediction found for sku {sku} and time_key {time_key}'
-        }), 404
+        if not pred:
+            return jsonify({
+                'error': f'No prediction found for sku {sku_int} and time_key {time_key_int}'
+            }), 404
+
+        # Return the stored prediction
+        return jsonify(model_to_dict(pred)), 200
+
     except Exception as e:
-        app.logger.error(f"Retrieval error: {str(e)}")
+        app.logger.error(f"Retrieval error: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
 ########################################
