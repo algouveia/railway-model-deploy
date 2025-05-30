@@ -210,7 +210,8 @@ def forecast_prices():
         return jsonify({'error': 'Internal server error'}), 500  # HTTP 500
 
 
-@app.route('/actual_prices/', methods=['POST'])
+#@app.route('/actual_prices/', methods=['POST'])
+@app.route('/actual_prices/', methods=['POST'], strict_slashes=False)
 def actual_prices():
     """Update with actual price data"""
     try:
@@ -244,7 +245,7 @@ def actual_prices():
         app.logger.error(f"Update error: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
 
-@app.route('/forecast_prices/<sku>/<time_key>/', methods=['GET'])
+@app.route('/forecast_prices/<sku>/<time_key>/', methods=['GET'], strict_slashes=False)
 def get_prediction(sku, time_key):
     """Retrieve a specific prediction"""
     try:
@@ -271,7 +272,7 @@ def get_prediction(sku, time_key):
 # Additional Endpoints
 ########################################
 
-@app.route('/health/', methods=['GET'])
+@app.route('/health/', methods=['GET'], strict_slashes=False)
 def health_check():
     return jsonify({'status': 'healthy'}), 200
 
