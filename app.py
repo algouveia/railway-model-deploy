@@ -282,9 +282,9 @@ def api_info():
         'name': 'Price Prediction API',
         'version': '1.0',
         'endpoints': {
-            'POST /forecast_prices': 'Make new predictions',
+            'GET /forecast_prices': 'Make new predictions',
             'POST /actual_prices': 'Update with actual prices',
-            'GET /predictions/<sku>/<time_key>': 'Get specific prediction'
+            #'GET /predictions/<sku>/<time_key>': 'Get specific prediction'
         }
     })
 
