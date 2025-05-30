@@ -72,7 +72,7 @@ class PricePrediction(Model):
             (('sku', 'time_key'), True),  # composite unique index
         )
 
-DB.create_tables([PricePrediction], safe=True)
+DB.create_tables([PricePredictionChain], safe=True)
 
 ########################################
 # Model Loading
