@@ -136,17 +136,14 @@ def validate_price_request(req, require_actual=False):
 
 def prepare_features(req):
     """Prepare features for model prediction"""
-    features_dict = {
-        "sku": float(int(req['sku'])),  # Convert to int first, then float
-        "time_key": float(int(req['time_key']))
-    }
-    
-    # Add default values for any missing columns
+    features_dict = {}
     for col in columns:
-        if col not in features_dict:
-            features_dict[col] = 0.0
-    
+        if col in req:
+            features_dict[col] = float(req[col])
+        else:
+            features_dict[col] = 0.0  # Or your model's default
     return pd.DataFrame([features_dict], columns=columns).astype(dtypes)
+
 
 ########################################
 # API Endpoints
