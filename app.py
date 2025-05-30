@@ -246,7 +246,7 @@ def actual_prices():
         return jsonify({'error': 'Internal server error'}), 500
 
 #@app.route('/forecast_prices/<sku>/<time_key>/', methods=['GET'], strict_slashes=False)
-@app.route('/forecast_prices/', methods=['GET'], strict_slashes=False)
+@app.route('/forecast_prices/', methods=['POST'], strict_slashes=False)
 def get_prediction(sku, time_key):
     """Retrieve a specific prediction"""
     try:
@@ -283,7 +283,7 @@ def api_info():
         'name': 'Price Prediction API',
         'version': '1.0',
         'endpoints': {
-            'GET /forecast_prices': 'Make new predictions',
+            'POST /forecast_prices': 'Make new predictions',
             'POST /actual_prices': 'Update with actual prices',
             #'GET /predictions/<sku>/<time_key>': 'Get specific prediction'
         }
