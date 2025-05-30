@@ -12,8 +12,21 @@ from playhouse.shortcuts import model_to_dict
 from playhouse.db_url import connect
 from datetime import datetime
 
+from peewee import PostgresqlDatabase
+import os
+
+
 # Initialize Flask app
 app = Flask(__name__)
+
+
+DB = PostgresqlDatabase(
+    os.getenv("PGDATABASE"),   # e.g., "railway"
+    user=os.getenv("PGUSER"),  # e.g., "railway"
+    password=os.getenv("PGPASSWORD"),
+    host=os.getenv("PGHOST"),  # e.g., "postgres-production-xxxxx.up.railway.app"
+    port=int(os.getenv("PGPORT", 5432))
+)
 
 # Configuration
 DEBUG_MODE = os.environ.get('DEBUG', '0') == '1'
